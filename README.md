@@ -1,4 +1,4 @@
-# Sh_Kahoot-multi-account-bot
+# Sh_Kahoot-multi-account-bot ( Kahoot Bot )
 
 This Shell script allows you to manage multiple kahoot users in the same browser's window (to answer the questions at the same time with all of them).
 
