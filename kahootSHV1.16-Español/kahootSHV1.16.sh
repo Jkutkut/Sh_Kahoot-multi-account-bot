@@ -3,12 +3,12 @@ dir="/opt/google/chrome";
 execu="chrome";
 delay=0.02;
 k=3;
-mode="autoclick"; #autoclick or manual
+mode="autoclick"; #autoclick o manual
 autoSetup="true";
 kahootId="";
 nick="";
 askResponse="";
-#colors:
+#colores:
   NC='\033[0m' # No Color
   RED='\033[0;31m'
   GREEN='\033[0;32m'
@@ -28,32 +28,32 @@ MOUSE_ID=$(xinput --list | grep -i -m 1 'Touchpad' | grep -o 'id=[0-9]\+' | grep
 STATE1=$(xinput --query-state $MOUSE_ID | grep 'button\[' | sort);
 click=$true;
 # ---------------------------------------------------------------------------------------------
-# ----------------------------------------- FUNCTIONS -----------------------------------------
-#++++++ Small function ++++++
-ask(){ # to do the read in terminal, save the response in askResponse
+# ----------------------------------------- FUNCIONES -----------------------------------------
+#++++++ pequeña funciones ++++++
+ask(){ # para leer en terminal, guarda la respuesta en askResponse
   text=$1;
   textEnd=$2;
   read -p "$(echo -e ${LBLUE}"$text"${NC} $textEnd)->" askResponse;
 }
 
-tab(){ #to switch between terminal and browser;
+tab(){ #para cambiar entre la terminal y el navegador;
   press4me "alt+Tab";
   sleep 0.1;
   xdotool keyup "alt";
   xdotool keyup "Tab";
   sleep 1;
   if (( 1$1 == 11 )); then #if 1º argument == 1 ()
-    xdotool key KP_Enter; #enter key
+    xdotool key KP_Enter; #tecla enter
     sleep 1;
   fi
 }
 
-press4me(){ #to use the keyboard
+press4me(){ #para usar el teclado
   xdotool key --clearmodifiers "$1";
 }
 
 clicker(){
-  for (( i=1; i <= $1; ++i )); do # $1 -> number of times to click and tab (1º argument).
+  for (( i=1; i <= $1; ++i )); do # $1 -> nº de veces que hacer click t tab (1º argumento).
     xdotool click 1;
     sleep $delay;
     press4me "ctrl+Tab";
@@ -62,14 +62,14 @@ clicker(){
 }
 
 
-#loop: do the clicks and the change between windows
+#loop: hace los clicks and cambia de ventanas
 loop(){
   while true; do
     sleep $delay;
-    STATE2=$(xinput --query-state $MOUSE_ID | grep 'button\[' | sort);#save state of the mouse
-    if test "$STATE1" != "$STATE2"; then #if click update
+    STATE2=$(xinput --query-state $MOUSE_ID | grep 'button\[' | sort);#guarda el estado del ratón
+    if test "$STATE1" != "$STATE2"; then #si el ratón se actualiza
       if $click; then
-        click=false;#the mouse updates 2 times per click (OFF->ON, ON->OFF), we only do it once (boolean)
+        click=false;#El ratón se actualiza 2 veces cada tick (OFF->ON, ON->OFF), sólo lo hacemos 1 vez (booleana)
         if [ "$mode" = "autoclick" ]; then # *************** Autoclick ***************
           clicker $k;
         else # *************** NORMAL ***************
@@ -84,79 +84,79 @@ loop(){
 }
 
 autoSetupFv2(){
-  printf "\nAutoSetup is now on, please wait\nStart in ";
+  printf "\nAutoSetup activado, por favor espere\nEmpieza en ";
   for (( i = 3; i >= 0; i-- )); do
     printf "$i, ";
     sleep 0.5;
   done
   printf "  ${LBLUE}GO${NC}\n";
-  cd $dir; #go to the executable dir
-  ./$execu >/dev/null 2>&1 & #Execute the executable.This way, we dont see browser's errors on terminal
+  cd $dir; #ve al directorio con el ejecutable
+  ./$execu >/dev/null 2>&1 & #Ejecútalo. De esta manera, no vemos los errores que da el navegador en el terminal
   sleep 8;
   result=$(xdotool getactivewindow getwindowname);
-  while [ "$result" != "New Tab - Google Chrome" ]; do #wait until loaded
+  while [ "$result" != "New Tab - Google Chrome" ]; do #espera a que cargue
     sleep 0.1;
     #echo $result;
     result=$(xdotool getactivewindow getwindowname);
   done
-  # +++++++++++++++++++ Enter url +++++++++++++++++++
-  printf "https://kahoot.it/" $url | xclip -i -selection clipboard; #copy url to clipboard
+  # +++++++++++++++++++ Introducir url +++++++++++++++++++
+  printf "https://kahoot.it/" $url | xclip -i -selection clipboard; #copiar el url al portapapeles
   for (( i = 0; i < $k; i++ )); do
-    press4me "ctrl+v"; #paste url in browser
+    press4me "ctrl+v"; #pega el url en el navegador
     sleep 0.1;
     xdotool key KP_Enter; #press enter;
     sleep $delay;
-    press4me "ctrl+t"; #New tab
+    press4me "ctrl+t"; #nueva pestaña
     sleep 0.1;
   done
-  tab; # go to terminal
-  ask "Enter kahootId" "(integer)";
-  kahootId=$askResponse;#save kahoot's id
-  tab 1; #go to browser
-  # +++++++++++++++++++ Enter id +++++++++++++++++++
+  tab; # ve al terminal
+  ask "Introduce el kahootId" "(número)";
+  kahootId=$askResponse;#guardar kahootid
+  tab 1; #ir al navegador
+  # +++++++++++++++++++ Introducir id +++++++++++++++++++
   for (( i = 0; i < $k; i++ )); do
     press4me "ctrl+Tab";
-    result=$(xdotool search --name Game); # wait until loaded
+    result=$(xdotool search --name Game); # Esperar hasta que esté cargado
     while [ "$result" = "" ]; do
       sleep 2;
       result=$(xdotool search --name Game);
     done
     sleep 1;
-    press4me "Tab"; #press the Tab to focus the text input zone
+    press4me "Tab"; #presiona la tecla Tab para hacer focus en el textbox
     sleep 0.5;
-    printf "$kahootId" $url | xclip -i -selection clipboard; # copy id
-    press4me "ctrl+v"; #paste id
+    printf "$kahootId" $url | xclip -i -selection clipboard; # copiar id
+    press4me "ctrl+v"; #pegar id
     sleep 0.1;
-    xdotool key KP_Enter; #press enter
+    xdotool key KP_Enter; #presiona enter
   done
-  press4me "ctrl+Tab";#go to the blank one
-  tab; # go to terminal
-  ask "Enter nick" "(duck-> duck1, duck2...)";
-  nick=$askResponse; #save nick
-  tab 1; # go to browser
-  # +++++++++++++++++++ Enter nick +++++++++++++++++++
+  press4me "ctrl+Tab";#va a la que está en blanco
+  tab; # ir al terminal
+  ask "Enter nombre" "(pato-> pato1, pato2...)";
+  nick=$askResponse; #guardar nombre
+  tab 1; # ir al navegador
+  # +++++++++++++++++++ Introducir nombre +++++++++++++++++++
   for (( i = 1; i < $k + 1; i++ )); do
-    press4me "ctrl+Tab"; # go to the tab
+    press4me "ctrl+Tab"; # ir a la pestaña 
     sleep 3;
-    press4me "Tab"; # focus input zone
+    press4me "Tab"; # focus en el textbox
     sleep 0.5;
-    printf "$nick$i" $url | xclip -i -selection clipboard; #copy nick
-    press4me "ctrl+v"; # paste nick
+    printf "$nick$i" $url | xclip -i -selection clipboard; #copiar nombre
+    press4me "ctrl+v"; # pegar nombre
     sleep 0.1;
-    xdotool key KP_Enter;  #enter key
+    xdotool key KP_Enter;  # presionar enter
   done
-  xdotool key --clearmodifiers "ctrl+Tab"; #go to the blank
-  printf "done, enjoy :D" $url | xclip -i -selection clipboard; #copy text to say it's done
-  xdotool key --clearmodifiers "ctrl+v"; #paste
-  echo "autoSetup done"; #also in terminal
+  xdotool key --clearmodifiers "ctrl+Tab"; #ir a la vacía
+  printf "Terminado, disfruta :D" $url | xclip -i -selection clipboard; #copiar el texto de que ya está listo
+  xdotool key --clearmodifiers "ctrl+v"; #pegar
+  echo "autoSetup terminado"; #también en terminal
   sleep 2;
-  xdotool key --clearmodifiers "ctrl+w"; #delete blank tab
+  xdotool key --clearmodifiers "ctrl+w"; #borra la pestaña en blanco
 }
 
 preLunchFv2(){
   while true; do
-    printf "${YELLOW}\nCurrent settings:${NC}\nMode: $mode, kahoot acounts: $k, delay: $delay\s, autoSetup: $autoSetup\n";
-    ask 'Ready to start?' '[yes/setup/help]';
+    printf "${YELLOW}\nAjuste actual:${NC}\nModo: $mode, nº de cuentas: $k, delay: $delay\s, autoSetup: $autoSetup\n";
+    ask 'Empezamos?' '[yes/setup/help]';
 
     case $askResponse in
       h|help|H|HELP)
@@ -165,7 +165,7 @@ preLunchFv2(){
       ;;
 
       y|start|yes|Y|START)
-        printf "${GREEN}Enjoy :D${NC}\nTo close the program, press ${RED}ctrl+C${NC}";
+        printf "${GREEN}Disfrute :D${NC}\nPara cerrar el script, presione ${RED}ctrl+C${NC}";
         if [ "$autoSetup" = "true" ]; then
           autoSetupFv2;
         fi
@@ -175,28 +175,28 @@ preLunchFv2(){
         setup;
       ;;
       *)
-        echo "command not found";
+        echo "commando no encontrado";
       ;;
       esac
   done
 }
 
-setup(){ #menu to change the parameters
-  miniLoop=$true; #to control the setup loop
+setup(){ #menu para cambiar los parámetros
+  miniLoop=$true; # para controlar el loop
   while $miniLoop; do
     clear;
-    echo -e "${YELLOW}Settings:${NC} \nMode: $mode, kahoot acounts: $k, delay: $delay s, autoSetup: $autoSetup";
-    if [ "$mode" != "autoclick" ]; then #if autoclick on-> diferent menu
-      echo "[mode/autoSetup (auto)/exit(c, done, exit)]";
+    echo -e "${YELLOW}Ajustes:${NC} \nModo: $mode, nº de cuentas: $k, delay: $delay s, autoSetup: $autoSetup";
+    if [ "$mode" != "autoclick" ]; then #if autoclick on-> menu diferente
+      echo "[modo/autoSetup (auto)/salir(c, done, exit)]";
     else
-      echo "[mode/number of acounts (n, number)/delay/autoSetup (auto)/exit(c, done, exit)]";
+      echo "[modo/nº de cuentas (n, number)/delay/autoSetup (auto)/salir(c, done, exit)]";
     fi;
-    ask "Which element do you want to change?";
-    case $askResponse in #do the response
+    ask "Qué elemento quieres cambiar?";
+    case $askResponse in #haz la respuesta
       m|mode)
-        ask "Mode?" "(autoclick/normal)";
+        ask "Modo?" "(autoclick/normal)";
         case $askResponse in
-          auto*)#matches auto, autoclick...
+          auto*)#encuentra auto, autoclick...
             mode="autoclick";
           ;;
           *)
@@ -205,11 +205,11 @@ setup(){ #menu to change the parameters
         esac
       ;;
       n|number)
-        ask "Kahoot acounts" "(integer)";
+        ask "nº cuentas" "(integer)";
         k=$askResponse;
       ;;
       d|delay)
-        ask "Delay time (in seconds, \".\" format)";
+        ask "Tiempo delay (in seconds, \".\" format)";
         delay=$askResponse;
       ;;
       auto)
@@ -220,10 +220,10 @@ setup(){ #menu to change the parameters
           autoSetup="false";
         fi
       ;;
-      c|exit|done) #if exit
-        miniLoop=false;#now, loop will end
+      c|exit|done) #si salir
+        miniLoop=false;# ahora, este loop termina
         clear;
-        echo "Setup done";
+        echo "Setup terminado";
       ;;
     esac
   done;
@@ -231,34 +231,34 @@ setup(){ #menu to change the parameters
 
 
 
-helpText(){ #when asked for help, show it
-  echo -e "${YELLOW}Help:${NC}\n
-- ${LBLUE}Autoclick${NC} will do the click action and go to the next tab in the window.
-- ${LBLUE}Normal${NC} will only tab to the next, so you can choose the option you want.
-- ${LBLUE}AutoSetup${NC}: this mode made the setup of the browser automatically
+helpText(){ # cuando se pida ayuda, mostrar esto
+  echo -e "${YELLOW}Ayuda:${NC}\n
+- ${LBLUE}Autoclick${NC} Hará la acción de clicar e ir a la siguiente pestaña de la ventana.
+- ${LBLUE}Normal${NC} Sólo irá a la siguiente pestaña, por tanto puedes elegir la opción manualmente.
+- ${LBLUE}AutoSetup${NC}: Este modo hace el montaje del navegador automáticamente.
 
-${LRED}Possible errors${NC}:\n
-  - ${RED}Error opening the browser:${NC} you must put the location of the
-    executable (change vars \"dir\" and \"execu\").
-    By default, it will try the \"/opt/google/chrome\" and the
-    executable \"chrome\".
-    Remember that if you use a diferent browser, it might not
-    work (the script uses keyboard shortcuts that might not be
-    equal in all browsers).\n
-  - ${RED}The autoSetup goes too fast:${NC} the time required might differ
-    between devices, please use enough time in order to solve this.\n
-  - ${RED}The mouse does not response:${NC} in a terminal,
-    type ${GREEN}xinput --list${NC} and choose your input (Touchpad,
+${LRED}Posibles errores${NC}:\n
+  - ${RED}Error abriendo el navegador:${NC} debes poner la dirección
+    del executable (cambiar vars \"dir\" y \"execu\").
+    Por defecto, intentará \"/opt/google/chrome\" y el 
+    ejecutable \"chrome\".
+    Recuerda que si usas un navegador diferente, puede no
+    funcionar (el script usa los atajos del teclado que pueden
+    no ser iguales para todos los navegadores).\n
+  - ${RED}El autoSetup va muy rápido:${NC} El tiempo requerrido puede variar
+    entre dispositivos, use tiempos suficientes para arreglar esto.\n
+  - ${RED}El ratón no responde:${NC} en un terminal,
+    escribir ${GREEN}xinput --list${NC} y elegir su input (Touchpad,
     USB Receiver...).\n
-  - ${RED}The text here doesn\'t fit correctly:${NC} this program was made for a
-    80x43 terminal (2º mode in Ubuntu 18.04\'s terminal).\n
-  - ${RED}Xdotool not installed:${NC} this program uses xdotool in order to control the
-    device. prease install it.";
+  - ${RED}El texto de la enterfaz no cabe bien en terminal:${NC} este programa está pensado
+    para un terminal 80x43 (2º nodo en Ubuntu 18.04 terminal).\n
+  - ${RED}Xdotool no instalado:${NC} este script usa xdotool para controlar el
+    dispositivo. Por favor, intalar antes de su uso.";
 }
 # ---------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------
 clear;
-printf "${LGREEN}********* Kahoot script *********${NC}\n\n- This program was made for educational purposes only, the\nauthor is not responsible for the use of this software.\nIf it's your 1º time using this program, please read the ${YELLOW}help${NC}.\nThis is an open source file.\n";
+printf "${LGREEN}********* Kahoot script *********${NC}\n\n- Este programa fué creado por motivos educativos, el\nautor no es responsable del uso que se dé a este programa.\nSi es la primera vez ejecutando el programa, ver ${YELLOW}ayuda${NC}.\nEste projecto es open source.\n";
 preLunchFv2;
 #~~~~~~~~ Debug ~~~~~~~~
 #while true; do
